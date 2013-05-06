@@ -150,7 +150,7 @@ function add() {
 <VirtualHost *:80>
     ServerAdmin webmaster@$VHOSTDOMAIN
     ServerName $VHOSTDOMAIN
-    $ALIAS
+    $SERVERALIAS
 
     DocumentRoot $VHOSTDOCROOT
     CustomLog /var/log/apache2/access_stats.$VHOSTDOMAIN.log combined
@@ -358,6 +358,14 @@ then
     VHOSTDOMAIN="$NAME.$TLD"
 else
     VHOSTDOMAIN="$NAME"
+fi
+
+# If $ALIAS specified, use it as SeverAlias
+if [[ ! -z $TLD ]]
+then
+    SERVERALIAS="ServerAlias $ALIAS"
+else
+    SERVERALIAS=""
 fi
 
 # Virtual host file
