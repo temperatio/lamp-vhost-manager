@@ -11,6 +11,9 @@ STATICDIR="html"
 # Directory name and domain name if $TLD is empty (enter to avoid having to use this argument)
 NAME=
 
+# Directory name and domain name if $TLD is empty (enter to avoid having to use this argument)
+ALIAS=
+
 # Desired top level domain (enter to avoid having to use this argument)
 TLD=
 
@@ -63,6 +66,7 @@ function usage() {
     -h    Show this message
     -m    Mode (required, "add" or "remove")
     -n    Project name (required, used as directory name and as domain name if -t is omitted)
+    -a    Server alias (optional, provide if you want add a server alias)
     -t    TLD (optional, provide only if directory name differs from domain name)
     -b    Base path (optional, "$BASEPATH" by default)
     -s    Static files directory inside site path (optional, "$STATICDIR" by default)
@@ -146,17 +150,19 @@ function add() {
 <VirtualHost *:80>
     ServerAdmin webmaster@$VHOSTDOMAIN
     ServerName $VHOSTDOMAIN
+    $ALIAS
 
     DocumentRoot $VHOSTDOCROOT
+    CustomLog /var/log/apache2/access_stats.$VHOSTDOMAIN.log combined
     <Directory />
-  Options FollowSymLinks
-  AllowOverride None
+        Options FollowSymLinks
+        AllowOverride None
     </Directory>
     <Directory $VHOSTDOCROOT/>
-  Options Indexes FollowSymLinks MultiViews
-  AllowOverride All
-  Order allow,deny
-  allow from all
+        Options -Indexes FollowSymLinks MultiViews
+        AllowOverride All
+        Order allow,deny
+        allow from all
     </Directory>
 </VirtualHost>
 EOF
@@ -268,7 +274,7 @@ if [ "$(whoami)" != "root" ]
 fi
 
 # Parse script arguments
-while getopts "hm:n:t:b:s:u:p:U:P:N:" OPTION
+while getopts "hm:n:a:t:b:s:u:p:U:P:N:" OPTION
 do
   case $OPTION in
     h)
@@ -280,6 +286,9 @@ do
       ;;
     n)
       NAME=$OPTARG
+      ;;
+    a)
+      ALIAS=$OPTARG
       ;;
     t)
       TLD=$OPTARG
